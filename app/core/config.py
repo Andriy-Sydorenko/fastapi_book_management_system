@@ -18,16 +18,8 @@ class Settings(BaseSettings):
     token_expire_minutes: int = 60 * 24
 
     @property
-    def db_creds(self) -> str:
-        return f"{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{self.database_name}"  # noqa
-
-    @property
-    def async_db_url(self) -> str:
-        return f"postgresql+asyncpg://{self.db_creds}"
-
-    @property
-    def sync_db_url(self) -> str:
-        return f"postgresql://{self.db_creds}"
+    def db_url(self) -> str:
+        return f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{self.database_name}"  # noqa
 
     class Config:
         env_file = ".env"
