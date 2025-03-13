@@ -1,0 +1,34 @@
+[project]
+name = "fastapi-book-management-system"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Andriy Sydorenko",email = "sidorenkoandrij217@gmail.com"}
+]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.13"
+black = "^25.1.0"
+isort = "^6.0.1"
+flake8 = "^7.1.2"
+fastapi = {extras = ["standard"], version = "^0.115.11"}
+
+[tool.black]
+line-length = 119
+target-version = ['py312']
+include = '\.py$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+)/
+'''
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
