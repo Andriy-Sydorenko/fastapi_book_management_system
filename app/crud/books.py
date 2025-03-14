@@ -1,15 +1,19 @@
 from typing import Any, Optional
 
+from fastapi import HTTPException
+
+from app.schemas.books import BookCreate
 from app.utils import get_connection
 
 
 async def get_books(
+    book_id: Optional[int] = None,
     title: Optional[str] = None,
     author: Optional[str] = None,
     genre: Optional[str] = None,
     year_from: Optional[int] = None,
     year_to: Optional[int] = None,
-    sort_by: str = "title",
+    sort_by: str = "created_at",
     sort_order: str = "asc",
     limit: int = 10,
     offset: int = 0,
@@ -19,6 +23,7 @@ async def get_books(
     sorting, and pagination.
 
     Parameters:
+        book_id (int, optional): Retrieve a single book by its ID.
         title (str, optional): Filter books by title (case-insensitive partial match).
         author (str, optional): Filter books by author name (case-insensitive partial match).
         genre (str, optional): Filter books by genre (exact match).
@@ -34,23 +39,49 @@ async def get_books(
     """
     conn = await get_connection()
     try:
-        # Call the stored procedure using positional parameters.
-        # The stored procedure 'get_books' is defined to accept 9 parameters.
-        query = "SELECT * FROM get_books($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+        query = "SELECT * FROM get_books_procedure($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
         result = await conn.fetch(
             query,
-            title,  # p_title
-            author,  # p_author
-            genre,  # p_genre
-            year_from,  # p_year_from
-            year_to,  # p_year_to
-            sort_by,  # p_sort_by
-            sort_order,  # p_sort_order
-            limit,  # p_limit
-            offset,  # p_offset
+            book_id,
+            title,
+            author,
+            genre,
+            year_from,
+            year_to,
+            sort_by,
+            sort_order,
+            limit,
+            offset,
         )
         # Convert each asyncpg Record to a dictionary.
         return [dict(record) for record in result]
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error retrieving books: {e}")
     finally:
         await conn.close()
-        return []
+
+
+async def create_book(book: BookCreate) -> [dict[str, Any]]:
+    """
+    Create a book using the stored procedure 'create_book_procedure'.
+    Expects that the provided author already exists; otherwise, an exception is raised.
+    """
+    conn = await get_connection()
+    try:
+        query = "SELECT * FROM create_book_procedure($1, $2, $3, $4, $5)"
+        result = await conn.fetch(
+            query,
+            book.title,
+            book.isbn,
+            book.published_year,
+            book.genre,
+            book.author_name,
+        )
+        if result:
+            return dict(result[0])
+        else:
+            raise HTTPException(status_code=404, detail="Book creation failed: no record returned.")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error creating book: {e}")
+    finally:
+        await conn.close()

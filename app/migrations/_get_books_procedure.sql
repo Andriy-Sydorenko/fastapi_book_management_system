@@ -1,4 +1,5 @@
-CREATE OR REPLACE FUNCTION get_books(
+CREATE OR REPLACE FUNCTION get_books_procedure(
+    p_id INT DEFAULT NULL,
     p_title TEXT DEFAULT NULL,
     p_author TEXT DEFAULT NULL,
     p_genre TEXT DEFAULT NULL,
@@ -10,20 +11,22 @@ CREATE OR REPLACE FUNCTION get_books(
     p_offset INT DEFAULT 0
 )
 RETURNS TABLE(
-    id UUID,
-    title TEXT,
-    isbn TEXT,
+    id INT,
+    title VARCHAR(255),
+    isbn VARCHAR(13),
     published_year INT,
-    genre TEXT,
-    author_id UUID,
-    author_name TEXT
+    genre VARCHAR(50),
+    author_id INT,
+    author_name VARCHAR(255)
 ) AS $$
 DECLARE
     base_query TEXT := 'SELECT b.id, b.title, b.isbn, b.published_year, b.genre, b.author_id, a.name AS author_name FROM books b JOIN authors a ON b.author_id = a.id';
     conditions TEXT := '';
     query TEXT;
 BEGIN
-    -- Build filtering conditions using safe formatting.
+    IF p_id IS NOT NULL THEN
+        conditions := conditions || format('b.id = %L', p_id) || ' AND ';
+    END IF;
     IF p_title IS NOT NULL THEN
         conditions := conditions || format('b.title ILIKE %L', '%' || p_title || '%') || ' AND ';
     END IF;
@@ -60,7 +63,6 @@ BEGIN
     query := query || format(' ORDER BY b.%I %s', p_sort_by, p_sort_order);
     query := query || format(' LIMIT %s OFFSET %s', p_limit, p_offset);
 
-    -- Execute the dynamic SQL and return the resulting rows.
     RETURN QUERY EXECUTE query;
 END;
 $$ LANGUAGE plpgsql;

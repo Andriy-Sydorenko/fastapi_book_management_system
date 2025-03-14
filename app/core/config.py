@@ -27,3 +27,5 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+print(settings.__dict__)
+print(settings.db_url)

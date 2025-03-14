@@ -12,7 +12,7 @@ repos:
       - id: flake8
         exclude: alembic/
         language_version: python3.13
-        args: ['--max-line-length=119', '--exclude=venv,__init__.py,*_.py', '--ignore=E203,W503']
+        args: ['--max-line-length=119', '--exclude=venv,__init__.py,*_.py', '--ignore=E203,W503,F811']
 
   - repo: https://github.com/pycqa/isort
     rev: 6.0.1
