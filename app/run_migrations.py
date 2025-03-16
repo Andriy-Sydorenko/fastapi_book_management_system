@@ -9,7 +9,6 @@ from core.config import settings
 async def run_migrations():
     conn = await asyncpg.connect(settings.db_url)
     try:
-        # Get and sort all migration SQL files from the migrations folder.
         migration_files = sorted(glob.glob(os.path.join("", "migrations", "*.sql")))
         for migration in migration_files:
             with open(migration, "r") as file:

@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     database_user: str = "some_name"
     database_password: str = "some_password"
 
-    # TODO: Make key and iv generate automatically on each server start
     aes_key: str = "invalid_aes_key"
     aes_iv: str = "invalid_aes_iv"
     jwt_secret: str = "invalid_jwt_secret"

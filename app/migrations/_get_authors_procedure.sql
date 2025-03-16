@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION get_authors_procedure(
+CREATE OR REPLACE FUNCTION get_authors_function(
     p_id INT DEFAULT NULL,
     p_name TEXT DEFAULT NULL
 )

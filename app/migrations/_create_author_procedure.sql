@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION create_author_procedure(
+CREATE OR REPLACE FUNCTION create_author_function(
     p_name TEXT
 )
 RETURNS TABLE(

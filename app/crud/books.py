@@ -2,11 +2,11 @@ from typing import Any, Optional
 
 from fastapi import HTTPException
 
-from app.schemas.books import BookCreate
+from app.schemas.books import BookCreate, BookUpdate
 from app.utils import get_connection
 
 
-async def get_books(
+async def get_books_crud(
     book_id: Optional[int] = None,
     title: Optional[str] = None,
     author: Optional[str] = None,
@@ -39,7 +39,7 @@ async def get_books(
     """
     conn = await get_connection()
     try:
-        query = "SELECT * FROM get_books_procedure($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
+        query = "SELECT * FROM get_books_function($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
         result = await conn.fetch(
             query,
             book_id,
@@ -53,7 +53,6 @@ async def get_books(
             limit,
             offset,
         )
-        # Convert each asyncpg Record to a dictionary.
         return [dict(record) for record in result]
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error retrieving books: {e}")
@@ -61,14 +60,14 @@ async def get_books(
         await conn.close()
 
 
-async def create_book(book: BookCreate) -> [dict[str, Any]]:
+async def create_book_crud(book: BookCreate) -> [dict[str, Any]]:
     """
-    Create a book using the stored procedure 'create_book_procedure'.
+    Create a book using the stored procedure 'create_book_function'.
     Expects that the provided author already exists; otherwise, an exception is raised.
     """
     conn = await get_connection()
     try:
-        query = "SELECT * FROM create_book_procedure($1, $2, $3, $4, $5)"
+        query = "SELECT * FROM create_book_function($1, $2, $3, $4, $5)"
         result = await conn.fetch(
             query,
             book.title,
@@ -83,5 +82,39 @@ async def create_book(book: BookCreate) -> [dict[str, Any]]:
             raise HTTPException(status_code=404, detail="Book creation failed: no record returned.")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error creating book: {e}")
+    finally:
+        await conn.close()
+
+
+async def update_book_crud(book_id: int, book: BookUpdate) -> [dict[str, Any]]:
+    conn = await get_connection()
+    try:
+        query = "SELECT * FROM update_book_function($1, $2, $3, $4, $5, $6)"
+        result = await conn.fetch(
+            query,
+            book_id,
+            book.title,
+            book.isbn,
+            book.published_year,
+            book.genre,
+            book.author_name,
+        )
+        if result:
+            return dict(result[0])
+        else:
+            raise HTTPException(status_code=404, detail="Book update failed: no record returned.")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error updating book: {e}")
+    finally:
+        await conn.close()
+
+
+async def delete_book_crud(book_id: int) -> None:
+    conn = await get_connection()
+    try:
+        query = "SELECT * FROM delete_book_function($1)"
+        await conn.fetch(query, book_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error deleting book: {e}")
     finally:
         await conn.close()

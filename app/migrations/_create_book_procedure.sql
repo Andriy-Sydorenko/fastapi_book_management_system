@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION create_book_procedure(
+CREATE OR REPLACE FUNCTION create_book_function(
     p_title TEXT,
     p_isbn TEXT,
     p_published_year INT,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION get_books_procedure(
+CREATE OR REPLACE FUNCTION get_books_function(
     p_id INT DEFAULT NULL,
     p_title TEXT DEFAULT NULL,
     p_author TEXT DEFAULT NULL,

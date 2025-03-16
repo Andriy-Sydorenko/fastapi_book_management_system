@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.crud import books as crud_books
-from app.schemas.books import BookCreate, BookDetail, BookQueryParams
+from app.crud.books import (
+    create_book_crud,
+    delete_book_crud,
+    get_books_crud,
+    update_book_crud,
+)
+from app.schemas.books import BookCreate, BookDetail, BookQueryParams, BookUpdate
 
 router = APIRouter(prefix="/books")
 
@@ -17,7 +22,7 @@ async def list_books(
     The query parameters are validated and parsed using the BookQueryParams model.
     """
     try:
-        books = await crud_books.get_books(
+        books = await get_books_crud(
             title=query.title,
             author=query.author,
             genre=query.genre,
@@ -36,7 +41,7 @@ async def list_books(
 @router.get("/{book_id}/", response_model=BookDetail)
 async def get_book(book_id: int):
     try:
-        book = await crud_books.get_books(book_id)
+        book = await get_books_crud(book_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error retrieving book: {e}")
     if not book:
@@ -47,7 +52,25 @@ async def get_book(book_id: int):
 @router.post("/", response_model=BookDetail)
 async def create_book(book: BookCreate):
     try:
-        new_book = await crud_books.create_book(book)
+        new_book = await create_book_crud(book)
         return new_book
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error creating book: {e}")
+
+
+@router.put("/{book_id}/", response_model=BookDetail)
+async def update_book(book_id: int, book: BookUpdate):
+    try:
+        updated_book = await update_book_crud(book_id, book)
+        return updated_book
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error updating book: {e}")
+
+
+@router.delete("/{book_id}/", response_model=dict[str, str])
+async def delete_book(book_id: int):
+    try:
+        await delete_book_crud(book_id)
+        return {"message": "Book deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error deleting book: {e}")
