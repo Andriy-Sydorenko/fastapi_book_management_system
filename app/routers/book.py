@@ -96,7 +96,7 @@ async def import_books(file: UploadFile = File(...), current_user: dict = Depend
 
 @router.get("/export/")
 async def export_books(
-    export_file_ext: Optional[str] = Query("json", regex="^(json|csv)$"),
+    export_file_ext: Optional[str] = Query("json", pattern="^(json|csv)$"),
 ):
     """
     Export books in JSON or CSV format.

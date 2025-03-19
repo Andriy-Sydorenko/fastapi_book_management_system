@@ -49,8 +49,7 @@ async def create_user_crud(user_data: UserCreate) -> dict:
         )
         return dict(result[0])
     except Exception as e:
-        # raise HTTPException(status_code=400, detail=f"Error creating user: {e}")
-        print(f"Database execution error: {e}")
+        raise HTTPException(status_code=400, detail=f"Error creating user: {e}")
     finally:
         await conn.close()
 
