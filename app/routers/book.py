@@ -55,7 +55,7 @@ async def create_book(book: BookCreate, current_user: dict = Depends(get_current
     return new_book
 
 
-@router.post("/import/")
+@router.post("/import/", response_model=list[BookDetail])
 async def import_books(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     """
     Import books from a JSON or CSV file.
@@ -94,7 +94,16 @@ async def import_books(file: UploadFile = File(...), current_user: dict = Depend
     return JSONResponse(status_code=200, content=imported_books)
 
 
-@router.get("/export/")
+@router.get(
+    "/export/",
+    responses={
+        200: {
+            "description": "Successful file export. Returns a CSV or JSON file.",
+            "content": {"text/csv": {}, "application/json": {}},
+        },
+        400: {"description": "Invalid file extension. Use 'json' or 'csv'."},
+    },
+)
 async def export_books(
     export_file_ext: Optional[str] = Query("json", pattern="^(json|csv)$"),
 ):
@@ -130,10 +139,25 @@ async def update_book(book_id: int, book: BookUpdate, current_user: dict = Depen
     return updated_book
 
 
-@router.delete("/{book_id}/")
+@router.delete(
+    "/{book_id}/",
+    responses={
+        200: {
+            "description": "Book deleted successfully.",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"message": {"type": "string", "example": "Book deleted successfully"}},
+                    }
+                }
+            },
+        },
+    },
+)
 async def delete_book(book_id: int, current_user: dict = Depends(get_current_user)):
     await delete_book_crud(book_id)
-    return JSONResponse(status_code=400, content={"message": "Book deleted successfully"})
+    return JSONResponse(status_code=200, content={"message": "Book deleted successfully"})
 
 
 @router.get("/{book_id}/", response_model=BookDetail)

@@ -14,3 +14,8 @@ class AuthorCreate(BaseModel):
         if not value.strip():
             raise ValueError("Author name can't be empty.")
         return value
+
+
+class TokenDetail(BaseModel):
+    access_token: str
+    token_type: str

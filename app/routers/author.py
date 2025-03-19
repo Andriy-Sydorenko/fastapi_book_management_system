@@ -57,10 +57,25 @@ async def update_author(author_id: int, author: AuthorCreate, current_user: dict
         raise HTTPException(status_code=400, detail=f"Error updating author: {e}")
 
 
-@router.delete("/{author_id}/")
+@router.delete(
+    "/{author_id}/",
+    responses={
+        200: {
+            "description": "Author deleted successfully.",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"message": {"type": "string", "example": "Author deleted successfully"}},
+                    }
+                }
+            },
+        },
+    },
+)
 async def delete_author(author_id: int, current_user: dict = Depends(get_current_user)):
     try:
         await delete_author_crud(author_id)
         return {"message": "Book deleted successfully"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error deleting book: {e}")
+        raise HTTPException(status_code=400, detail=f"Error deleting author: {e}")

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.crud.user import create_user_crud, get_current_user, verify_user_and_create_jwt
+from app.schemas.author import TokenDetail
 from app.schemas.user import UserCreate, UserDetail, UserLogin
 
 router = APIRouter()
@@ -11,7 +12,7 @@ async def register(user: UserCreate):
     return await create_user_crud(user)
 
 
-@router.post("/login/")
+@router.post("/login/", response_model=TokenDetail)
 async def login(login_data: UserLogin):
     user = get_current_user()
     if not user:
