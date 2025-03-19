@@ -43,12 +43,10 @@ BEGIN
         conditions := conditions || format('b.published_year <= %s', p_year_to) || ' AND ';
     END IF;
 
-    -- If any condition was added, remove the trailing ' AND ' and prepend "WHERE"
     IF conditions <> '' THEN
         conditions := ' WHERE ' || left(conditions, length(conditions) - 5);
     END IF;
 
-    -- Combine base query with filtering conditions.
     query := base_query || conditions;
 
     -- Validate sorting parameters against a whitelist.

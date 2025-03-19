@@ -11,11 +11,6 @@ class Settings(BaseSettings):
     database_user: str = "some_name"
     database_password: str = "some_password"
 
-    aes_key: str = "invalid_aes_key"
-    aes_iv: str = "invalid_aes_iv"
-    jwt_secret: str = "invalid_jwt_secret"
-    token_expire_minutes: int = 60 * 24
-
     @property
     def db_url(self) -> str:
         return f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{self.database_name}"  # noqa

@@ -17,7 +17,6 @@ BEGIN
         RAISE EXCEPTION 'Author with name "%" already exists.', p_name;
     END IF;
 
-    -- Insert the new author and return the new record.
     v_query := format('INSERT INTO authors (name) VALUES (%L) RETURNING id, name', p_name);
     RETURN QUERY EXECUTE v_query;
 END;

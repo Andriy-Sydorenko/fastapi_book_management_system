@@ -1,12 +1,14 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.params import Depends
 
-from app.crud.authors import (
+from app.crud.author import (
     create_author_crud,
     delete_author_crud,
     get_authors_crud,
     update_author_crud,
 )
-from app.schemas.authors import AuthorCreate, AuthorDetail
+from app.crud.user import get_current_user
+from app.schemas.author import AuthorCreate, AuthorDetail
 
 router = APIRouter(prefix="/authors")
 
@@ -32,7 +34,7 @@ async def get_author(author_id: int):
 
 
 @router.post("/", status_code=201, response_model=AuthorDetail)
-async def create_author(author: AuthorCreate):
+async def create_author(author: AuthorCreate, current_user: dict = Depends(get_current_user)):
     try:
         existing_authors = await get_authors_crud(author_name=author.name)
         if existing_authors:
@@ -44,7 +46,7 @@ async def create_author(author: AuthorCreate):
 
 
 @router.put("/{author_id}/", response_model=AuthorDetail)
-async def update_author(author_id: int, author: AuthorCreate):
+async def update_author(author_id: int, author: AuthorCreate, current_user: dict = Depends(get_current_user)):
     try:
         existing_authors = await get_authors_crud(author_id=author_id)
         if not existing_authors:
@@ -56,7 +58,7 @@ async def update_author(author_id: int, author: AuthorCreate):
 
 
 @router.delete("/{author_id}/")
-async def delete_author(author_id: int):
+async def delete_author(author_id: int, current_user: dict = Depends(get_current_user)):
     try:
         await delete_author_crud(author_id)
         return {"message": "Book deleted successfully"}

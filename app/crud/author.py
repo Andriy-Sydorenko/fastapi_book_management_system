@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi import HTTPException
 
-from app.schemas.authors import AuthorCreate
+from app.schemas.author import AuthorCreate
 from app.utils import get_connection
 
 

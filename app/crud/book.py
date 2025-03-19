@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from fastapi import HTTPException
 
-from app.schemas.books import BookCreate, BookUpdate
+from app.schemas.book import BookCreate, BookUpdate
 from app.utils import get_connection
 
 
@@ -55,7 +55,7 @@ async def get_books_crud(
         )
         return [dict(record) for record in result]
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error retrieving books: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         await conn.close()
 
@@ -81,7 +81,7 @@ async def create_book_crud(book: BookCreate) -> [dict[str, Any]]:
         else:
             raise HTTPException(status_code=404, detail="Book creation failed: no record returned.")
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error creating book: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         await conn.close()
 
@@ -99,12 +99,9 @@ async def update_book_crud(book_id: int, book: BookUpdate) -> [dict[str, Any]]:
             book.genre,
             book.author_name,
         )
-        if result:
-            return dict(result[0])
-        else:
-            raise HTTPException(status_code=404, detail="Book update failed: no record returned.")
+        return dict(result[0])
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error updating book: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         await conn.close()
 
@@ -113,8 +110,9 @@ async def delete_book_crud(book_id: int) -> None:
     conn = await get_connection()
     try:
         query = "SELECT * FROM delete_book_function($1)"
-        await conn.fetch(query, book_id)
+        result = await conn.fetch(query, book_id)
+        return result
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error deleting book: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         await conn.close()

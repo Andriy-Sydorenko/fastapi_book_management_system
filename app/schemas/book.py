@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.core.validators import validate_author, validate_genre, validate_published_year
+from app.core.validators import validate_genre, validate_published_year
 
 
 class BookBase(BaseModel):
@@ -14,10 +14,6 @@ class BookBase(BaseModel):
 
     _validate_published_year = field_validator("published_year")(validate_published_year)
     _validate_genre = field_validator("genre")(validate_genre)
-    _validate_author = field_validator("author_name")(validate_author)
-
-    class Config:
-        validate_assignment = True
 
 
 class BookDetail(BaseModel):
